@@ -21,6 +21,11 @@ This pack enables SOC teams to leverage Defender for Endpoint telemetry in Corte
 |------------------|-----------------------------------------------------------------------------|
 | **Layouts**       | Analyst-focused dashboards showing Defender alerts, evidence, and response history. |
 | **Correlation Rules** | Patterns identifying malware behavior, credential theft, and suspicious process chains. |
+| **Automation Scripts** |  
+| `displayDefenderEvidence_xsiam` | Displays raw alert record cleanly in layout tab/dynamic sections. |
+| `displayDefenderHostRecord_xsiam` | Renders full host record in layout tab/dynamic sections. |
+| `displayDefenderHostStatus_xsiam` | Shows host status in a structured format inside layout sections. |
+
 
 ---
 
