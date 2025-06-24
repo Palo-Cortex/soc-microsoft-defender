@@ -15,6 +15,15 @@ This pack enables SOC teams to leverage Defender for Endpoint telemetry in Corte
 
 ---
 
+## ⚙️ Prerequisites
+
+- Configure **two Microsoft integrations**:
+  - **O365 Data Source**
+    - Ensure **alert fetch** is enabled via **Microsoft Graph Alerts v2**
+  - **Microsoft Defender for Endpoint** (from Marketplace)
+    - Used for **automation commands only**
+---
+
 ## 📦 What's Included
 
 | Component        | Description                                                                 |
@@ -25,17 +34,6 @@ This pack enables SOC teams to leverage Defender for Endpoint telemetry in Corte
 | `displayDefenderEvidence_xsiam` | Displays raw alert record cleanly in layout tab/dynamic sections. |
 | `displayDefenderHostRecord_xsiam` | Renders full host record in layout tab/dynamic sections. |
 | `displayDefenderHostStatus_xsiam` | Shows host status in a structured format inside layout sections. |
-
-
----
-
-## ⚙️ Prerequisites
-
-- Configure **two Microsoft integrations**:
-  - **O365 Data Source**
-    - Ensure **alert fetch** is enabled via **Microsoft Graph Alerts v2**
-  - **Microsoft Defender for Endpoint** (from Marketplace)
-    - Used for **automation commands only**
 
 ## 🧠 Analyst Benefits
 
