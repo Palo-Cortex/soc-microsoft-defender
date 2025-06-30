@@ -5,7 +5,7 @@ inputs: []
 name: MDE Alert Handler
 outputs: []
 quiet: true
-sourceplaybookid: 29f020ea-1f69-4b49-8aaf-0dcf4d14bbb4
+sourceplaybookid: 'CrowdStrike Basic Alert Handler'
 starttaskid: "0"
 tags:
 - SOC
