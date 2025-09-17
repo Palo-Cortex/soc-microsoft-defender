@@ -2,17 +2,19 @@
     "name": "SOC Microsoft Defender Integration Enhancement for Cortex XSIAM",
     "id": "soc-microsoft-defender",
     "description": "This repository delivers enhanced integration for Microsoft Defender within Cortex XSIAM. It includes layouts, correlation rules, mappers, and data model updates to support deep visibility and automated response to Windows-based threats.",
-    "support": "community",
-    "currentVersion": "1.0.2",
-    "author": "Scott Brumley",
-    "url": "https://live.paloaltonetworks.com/t5/cortex-xsoar-discussions/bd-p/Cortex_XSOAR_Discussions",
+    "support": "xsoar",
+    "currentVersion": "1.0.3",
+    "author": "Cortex XSOAR",
+    "url": "https://www.paloaltonetworks.com/cortex",
     "email": "",
     "categories": [
         "Endpoint"
     ],
     "tags": [
         "SOC",
-        "PoV",
+        "SOC_Framework",
+        "Utility",
+        "Palo Alto Networks Products",
         "EDR",
         "Microsoft",
         "Defender"
@@ -21,11 +23,5 @@
     "keywords": [],
     "marketplaces": [
         "marketplacev2"
-    ],
-    "devEmail": [
-        "sbrumley@paloaltonetworks.com"
-    ],
-    "githubUser": [
-        "abarone"
     ]
 }
