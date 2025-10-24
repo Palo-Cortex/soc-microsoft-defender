@@ -79,7 +79,8 @@ xql_query: "/*\nTitle: Microsoft Graph Security Alerts - Focus on Defender for E
   \n//  Commenting this will apply the correlation to other, possibly non-endpoint\
   \ detections coming from Graph. This rule may function well on some other types,\
   \ but has been optimized for endpoint.\n| filter productName in(\"Microsoft Defender\
-  \ for Endpoint\")\n\n// Exclude any events that have been marked as resolved with\
+  \ for Endpoint\") or productName in(\"Microsoft Defender XDR\")\n\n\
+  // Exclude any events that have been marked as resolved with\
   \ Defender\n| filter status != \"resolved\" \n    //and severity in (\"low\",\"\
   medium\", \"high\", \"critical\")   \n\n// Alert name\n| alter alert_name = title\n\
   \n// Grab full evidence blobs for use in alert layout, if needed\n| alter userEvidence_blob\
