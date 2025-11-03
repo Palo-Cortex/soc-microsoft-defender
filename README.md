@@ -1,4 +1,4 @@
-# 🛡️ SOC Microsoft Defender Integration Enhancement for Cortex XSIAM (*** In Beta ***)
+# 🛡️ SOC Microsoft Defender Integration Enhancement for Cortex XSIAM
 
 This repository delivers enhanced integration for Microsoft Defender within Cortex XSIAM. It includes layouts, correlation rules, mappers, and data model updates to support deep visibility and automated response to Windows-based threats.
 
@@ -89,3 +89,4 @@ We welcome contributions via pull requests or GitHub issues.
 ## 🏷️ Tags
 
 `Microsoft Defender` `Windows Security` `Endpoint` `XSIAM` `SOC` `Automation` `Detection Engineering`
+
