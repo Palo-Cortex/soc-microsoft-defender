@@ -1,4 +1,5 @@
 action: ALERTS
+adopted: true
 alert_category: User Defined
 alert_description: $description
 alert_domain: DOMAIN_SECURITY
@@ -28,7 +29,11 @@ alert_fields:
   detectionid: detectorId
   deviceexternalips: evidence_device_externalip
   deviceosname: evidence_device_os
+  displayname: evidence_mailbox_display_name
   externallink: alertWebUrl
+  fw_email_recipient: evidence_message_recipient
+  fw_email_sender: evidence_message_sender
+  fw_email_subject: evidence_message_subject
   malicious_urls: evidence_urls
   microsoftgraphsecurityalertevidence: evidence
   mitretacticname: placeholder
@@ -43,6 +48,8 @@ alert_fields:
   parentprocesssha256: evidence_parent_process_sha256
   processcreationtime: evidence_process_starttime
   processid: evidence_process_pid
+  registrykey: evidence_registry_key
+  registryvalue: evidence_registry_value
   samaccountname: evidence_user_upn
   usersid: evidence_user_userSid
 alert_name: M365 Graph Alert - $alert_name
@@ -52,44 +59,56 @@ dataset: alerts
 description: Creates an XSIAM alert for each Microsoft Graph Endpoint Detection Event
 drilldown_query_timeframe: ALERT
 execution_mode: REAL_TIME
-global_rule_id: '[BETA} Microsoft Graph Security - Endpoint Alerts'
+global_rule_id: SOC Microsoft Graph Defender EndPoint - Exfiltration (TA0010)
 investigation_query_link: "// All (stitched) activity from host - assuming raw telemetry\
   \ is being collected\r\ndataset = xdr_data\r\n| filter agent_hostname = $evidence_device_hostname\r\
   \n| fields * "
 is_enabled: true
 lookup_mapping: []
 mapping_strategy: CUSTOM
-mitre_defs: {}
-name: '[BETA} Microsoft Graph Security - Endpoint Alerts'
-rule_id: 13
+mitre_defs:
+  TA0010 - Exfiltration: []
+name: SOC Microsoft Graph Defender EndPoint - Exfiltration (TA0010)
+rule_id: 0
 search_window: null
 severity: User Defined
 simple_schedule: null
-suppression_duration: null
-suppression_enabled: false
-suppression_fields: null
+suppression_duration: 1 hours
+suppression_enabled: true
+suppression_fields:
+- title
+- evidence_device_hostname
+- evidence_device_agentid
+- evidence_process_username
+- evidence_process_path
 timezone: null
 user_defined_category: category
 user_defined_severity: severity
 xql_query: "/*\nTitle: Microsoft Graph Security Alerts - Focus on Defender for Endpoint\n\
   Description: Creates a Cortex alert for each new event collected from Microsoft\
   \ Graph \nDatasets: msft_graph_security_alerts_raw\nDependencies: Office 365 Data\
-  \ Source with Microsoft Graph API v2 Alerts enabled\nVersion 0.2 (Beta) June 2025\n\
-  */\n\nconfig case_sensitive = false\n| dataset = msft_graph_security_alerts_raw\n\
+  \ Source with Microsoft Graph API v2 Alerts enabled\nVersion 1.0 October 2025\n\
+  */\n\nconfig case_sensitive = false\n| dataset = microsoft_graph_generic_alert_raw\n\
   \n//  Commenting this will apply the correlation to other, possibly non-endpoint\
   \ detections coming from Graph. This rule may function well on some other types,\
   \ but has been optimized for endpoint.\n| filter productName in(\"Microsoft Defender\
-  \ for Endpoint\")\n\n// Exclude any events that have been marked as resolved with\
-  \ Defender\n| filter status != \"resolved\" \n    //and severity in (\"low\",\"\
-  medium\", \"high\", \"critical\")   \n\n// Alert name\n| alter alert_name = title\n\
-  \n// Grab full evidence blobs for use in alert layout, if needed\n| alter userEvidence_blob\
+  \ for Endpoint\") or productName in(\"Microsoft Defender XDR\")\n\n// Exclude any\
+  \ events that have been marked as resolved with Defender\n| filter status != \"\
+  resolved\" \n    //and severity in (\"low\",\"medium\", \"high\", \"critical\")\
+  \   \n\n// --- MITRE Tactic: Execution (category + technique-string fallback) ---\n\
+  | alter cat_norm = replace(replace(replace(replace(lowercase(category),\" \",\"\"\
+  ),\"-\",\"\"),\"_\",\"\"),\".\",\"\")\n| alter mitre_str = lowercase(coalesce(mitreTechniques,\
+  \ \"\"))\n\n// pass if category == execution OR mitreTechniques includes any Exfiltration\
+  \ technique ID\n| filter cat_norm = \"exfiltration\"\n  or mitre_str ~= \"(?:t1048|t1567|t1020|t1011|t1030|t1041|t1052|t1074)\"\
+  \n\n\n// Alert name\n| alter alert_name = title\n\n// Grab full evidence blobs for\
+  \ use in alert layout, if needed\n| alter userEvidence_blob = arraymap(arrayfilter(evidence\
+  \ -> [], \"@element\" -> [\"@odata.type\"] contains \"userEvidence\"), \"@element\"\
+  ),\nfileEvidence_blob = arraymap(arrayfilter(evidence -> [], \"@element\" -> [\"\
+  @odata.type\"] contains \"fileEvidence\"), \"@element\"),\nprocessEvidence_blob\
   \ = arraymap(arrayfilter(evidence -> [], \"@element\" -> [\"@odata.type\"] contains\
-  \ \"userEvidence\"), \"@element\"),\nfileEvidence_blob = arraymap(arrayfilter(evidence\
-  \ -> [], \"@element\" -> [\"@odata.type\"] contains \"fileEvidence\"), \"@element\"\
-  ),\nprocessEvidence_blob = arraymap(arrayfilter(evidence -> [], \"@element\" ->\
-  \ [\"@odata.type\"] contains \"processEvidence\"), \"@element\"),\nipEvidence_blob\
-  \ = arraymap(arrayfilter(evidence -> [], \"@element\" -> [\"@odata.type\"] contains\
-  \ \"ipEvidence\"), \"@element\")\n\n\n// User-related property extractions, #microsoft.graph.security.userEvidence\n\
+  \ \"processEvidence\"), \"@element\"),\nipEvidence_blob = arraymap(arrayfilter(evidence\
+  \ -> [], \"@element\" -> [\"@odata.type\"] contains \"ipEvidence\"), \"@element\"\
+  )\n\n// User-related property extractions, #microsoft.graph.security.userEvidence\n\
   // https://learn.microsoft.com/en-us/graph/api/resources/security-userevidence?view=graph-rest-1.0\n\
   | alter\n    evidence_user_upn = arraymap(arrayfilter(evidence -> [], \"@element\"\
   \ -> [\"@odata.type\"] contains \"userEvidence\"), \"@element\" -> userAccount.userPrincipalName),\n\
@@ -114,12 +133,12 @@ xql_query: "/*\nTitle: Microsoft Graph Security Alerts - Focus on Defender for E
   \n// IP-related evidence extractions, #microsoft.graph.security.ipEvidence\n// https://learn.microsoft.com/en-us/graph/api/resources/security-ipevidence?view=graph-rest-1.0\n\
   | alter evidence_remote_ipv4 = arraymap(arrayfilter(evidence -> [], \"@element\"\
   \ -> [\"@odata.type\"] contains \"ipEvidence\"), if(\"@element\" -> ipAddress ~=\
-  \ \"(?:\\d{1,3}\\.){3}\\d{1,3}\", \"@element\" -> ipAddress, NULL)),\n    evidence_remote_ipv6\
-  \ = arraymap(arrayfilter(evidence -> [], \"@element\" -> [\"@odata.type\"] contains\
-  \ \"ipEvidence\"), if(\"@element\" -> ipAddress ~= \"^[0-9a-f:]+$\", \"@element\"\
-  \ -> ipAddress, NULL)),\n    evidence_local_ipv4 = arraymap(arrayfilter(evidence\
+  \ \"(?:\\\\d{1,3}\\\\.){3}\\\\d{1,3}\", \"@element\" -> ipAddress, NULL)),\n   \
+  \ evidence_remote_ipv6 = arraymap(arrayfilter(evidence -> [], \"@element\" -> [\"\
+  @odata.type\"] contains \"ipEvidence\"), if(\"@element\" -> ipAddress ~= \"^[0-9a-f:]+$\"\
+  , \"@element\" -> ipAddress, NULL)),\n    evidence_local_ipv4 = arraymap(arrayfilter(evidence\
   \ -> [], \"@element\" -> [\"@odata.type\"] contains \"deviceEvidence\"), if(\"@element\"\
-  \ -> ipAddress ~= \"(?:\\d{1,3}\\.){3}\\d{1,3}\", \"@element\" -> lastIpAddress,\
+  \ -> ipAddress ~= \"(?:\\\\d{1,3}\\\\.){3}\\\\d{1,3}\", \"@element\" -> lastIpAddress,\
   \ NULL))\n\n// URL-related evidence extractions, #microsoft.graph.security.urlEvidence\n\
   // https://learn.microsoft.com/en-us/graph/api/resources/security-urlevidence?view=graph-rest-1.0\n\
   // Populate with data from the analyzedMessage evidence type if there are no elements\n\
@@ -180,8 +199,37 @@ xql_query: "/*\nTitle: Microsoft Graph Security Alerts - Focus on Defender for E
   ] contains \"processEvidence\"), \"@element\" -> parentProcessImageFile.sha256)),\n\
   \    evidence_process_action = arraystring(arraymap(arrayfilter(evidence -> [],\
   \ \"@element\" -> [\"@odata.type\"] contains \"processEvidence\"), \"@element\"\
-  \ -> detectionStatus),\",\")\n\n// Azure resource evidence extractions, #microsoft.graph.security.azureResourceEvidence\n\
-  // https://learn.microsoft.com/en-us/graph/api/resources/security-azureresourceevidence?view=graph-rest-1.0\n\
+  \ -> detectionStatus),\",\")\n\n// ==================== NEW EVIDENCE TYPES ADDED\
+  \ (no other changes) ====================\n\n// Mailbox evidence\n| alter\n  evidence_mailbox_user_upn\
+  \     = arraymap(arrayfilter(evidence -> [], \"@element\" -> [\"@odata.type\"] contains\
+  \ \"mailboxEvidence\"), \"@element\" -> userAccount.userPrincipalName),\n  evidence_mailbox_display_name\
+  \ = arraymap(arrayfilter(evidence -> [], \"@element\" -> [\"@odata.type\"] contains\
+  \ \"mailboxEvidence\"), \"@element\" -> userAccount.displayName),\n  evidence_mailbox_id\
+  \           = arraymap(arrayfilter(evidence -> [], \"@element\" -> [\"@odata.type\"\
+  ] contains \"mailboxEvidence\"), \"@element\" -> mailboxId)\n\n// Registry evidence\n\
+  | alter\n  evidence_registry_key   = arraymap(arrayfilter(evidence -> [], \"@element\"\
+  \ -> [\"@odata.type\"] contains \"registryEvidence\"), \"@element\" -> registryKey),\n\
+  \  evidence_registry_value = arraymap(arrayfilter(evidence -> [], \"@element\" ->\
+  \ [\"@odata.type\"] contains \"registryEvidence\"), \"@element\" -> registryValue)\n\
+  \n// Service evidence\n| alter\n  evidence_service_name = arraymap(arrayfilter(evidence\
+  \ -> [], \"@element\" -> [\"@odata.type\"] contains \"serviceEvidence\"), \"@element\"\
+  \ -> serviceName),\n  evidence_service_path = arraymap(arrayfilter(evidence -> [],\
+  \ \"@element\" -> [\"@odata.type\"] contains \"serviceEvidence\"), \"@element\"\
+  \ -> serviceFilePath)\n\n// Analyzed message (phish/email) evidence \n| alter\n\
+  \  evidence_message_subject = arraymap(\n      arrayfilter(evidence -> [], \"@element\"\
+  \ -> [\"@odata.type\"] contains \"analyzedMessageEvidence\"),\n      \"@element\"\
+  \ -> subject\n  ),\n  evidence_message_sender = arraymap(\n      arrayfilter(evidence\
+  \ -> [], \"@element\" -> [\"@odata.type\"] contains \"analyzedMessageEvidence\"\
+  ),\n      coalesce(\"@element\" -> sender.emailAddress, \"@element\" -> sender)\n\
+  \  ),\n  evidence_message_recipient = arraymap(\n      arrayfilter(evidence -> [],\
+  \ \"@element\" -> [\"@odata.type\"] contains \"analyzedMessageEvidence\"),\n   \
+  \   \"@element\" -> recipientEmailAddress\n  )\n\n// Indicator (IOC) evidence\n\
+  | alter\n  evidence_ioc_values = arraymap(arrayfilter(evidence -> [], \"@element\"\
+  \ -> [\"@odata.type\"] contains \"indicatorEvidence\"), \"@element\" -> indicatorValue),\n\
+  \  evidence_ioc_types  = arraymap(arrayfilter(evidence -> [], \"@element\" -> [\"\
+  @odata.type\"] contains \"indicatorEvidence\"), \"@element\" -> indicatorType)\n\
+  \n// ==================== END NEW ADDED TYPES ====================\n\n// Azure resource\
+  \ evidence extractions, #microsoft.graph.security.azureResourceEvidence\n// https://learn.microsoft.com/en-us/graph/api/resources/security-azureresourceevidence?view=graph-rest-1.0\n\
   | alter evidence_azure_resource_id = arraydistinct(arraymap(arrayfilter(evidence\
   \ -> [], \"@element\" -> [\"@odata.type\"] contains \"processEvidence\"), \"@element\"\
   \ -> resourceId)),\n    evidence_azure_resource_name = arraydistinct(arraymap(arrayfilter(evidence\
@@ -193,7 +241,7 @@ xql_query: "/*\nTitle: Microsoft Graph Security Alerts - Focus on Defender for E
   \ class fields\n// Currently assumes MDE related fields only\n| alter source_upn\
   \ = if(array_length(evidence_user_upn) >= 1, evidence_user_upn, arraycreate(\" \"\
   )),\n        alert_url = if(array_length(evidence_urls) >= 1, evidence_urls, arraycreate(\"\
-  \ \"))\n\n// Unify username for alert mapping\n| alter evidence_process_username\
+  \ \"))\n        \n// Unify username for alert mapping\n| alter evidence_process_username\
   \ = if(array_length(evidence_process_username) < 1, null, evidence_process_username),\n\
   \        source_upn = if(array_length(source_upn) < 1, null, source_upn)\n| alter\
   \ source_user = coalesce(evidence_process_username, evidence_loggedon_user, source_upn)\n\
@@ -205,4 +253,5 @@ xql_query: "/*\nTitle: Microsoft Graph Security Alerts - Focus on Defender for E
   \ title, description, severity, source_user, source_upn, alertWebUrl, providerAlertId,\
   \ evidence, mitreTechniques, evidence_user_*, evidence_file_*, evidence_cloudapp_*,\
   \ evidence_ip*, evidence_urls, evidence_device*, evidence_parent*, evidence_process*,\
-  \ evidence_azure*, alert_url, placeholder, *blob, *"
+  \ evidence_azure*, evidence_mailbox_*, evidence_registry_*, evidence_service_*,\
+  \ evidence_message_*, evidence_ioc_*, alert_url, placeholder, *blob, *\n"
