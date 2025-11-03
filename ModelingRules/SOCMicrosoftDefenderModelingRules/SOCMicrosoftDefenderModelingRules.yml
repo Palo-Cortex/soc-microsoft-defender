@@ -1,0 +1,6 @@
+fromversion: 8.3.1
+adopted: true
+id: SOC_Microsoft_Graph_Security_Defender
+name: SOC Microsoft Graph Security Defender
+rules: ''
+schema: ''
