@@ -20,8 +20,10 @@ This pack enables SOC teams to leverage Defender for Endpoint telemetry in Corte
 - Configure **two Microsoft integrations**:
   - **O365 Data Source**
     - Ensure **alert fetch** is enabled via **Microsoft Graph Alerts v2**
+![AlertsIntegration.png](images/AlertsIntegration.png)
   - **Microsoft Defender for Endpoint** (from Marketplace)
     - Used for **automation commands only**
+![ActionsIntegration.png](images/ActionsIntegration.png)
 ---
 
 ## 📦 What's Included
