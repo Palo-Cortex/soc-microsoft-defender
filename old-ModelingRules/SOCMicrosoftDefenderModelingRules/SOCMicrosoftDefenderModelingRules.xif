@@ -1,4 +1,4 @@
-[MODEL: dataset=microsoft_graph_generic_alert_raw]
+[MODEL: dataset=microsoft_graph_generic_alert_raw, content_id="soc-microsoft-defender"]
 filter productName in ("Microsoft Defender for Endpoint","Microsoft Defender XDR")
 | filter status != "resolved"
 | alter
