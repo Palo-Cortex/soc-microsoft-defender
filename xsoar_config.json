@@ -2,7 +2,7 @@
   "custom_packs": [
     {
       "id": "soc-microsoft-defender.zip",
-      "url": "https://github.com/Palo-Cortex/soc-microsoft-defender/archive/refs/tags/v1.0.10.zip",
+      "url": "https://github.com/Palo-Cortex/soc-microsoft-defender/archive/refs/tags/v1.0.16.zip",
       "system": "yes"
     }
   ],
@@ -15,12 +15,10 @@
   "marketplace_packs": [
     {
       "id": "FeedOffice365",
-      "name": "Office 365 Feed",
       "version": "latest"
     },
     {
       "id": "MicrosoftDefenderAdvancedThreatProtection",
-      "name": "Microsoft Defender for Endpoint",
       "version": "latest"
     }
   ],
