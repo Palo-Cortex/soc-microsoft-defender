@@ -87,7 +87,7 @@ xql_query: "/*\nTitle: Microsoft Graph Security Alerts - Focus on Defender for E
   Description: Creates a Cortex alert for each new event collected from Microsoft\
   \ Graph \nDatasets: msft_graph_security_alerts_raw\nDependencies: Office 365 Data\
   \ Source with Microsoft Graph API v2 Alerts enabled\nVersion 1.0 October 2025\n\
-  */\n\nconfig case_sensitive = false\n| dataset = microsoft_graph_generic_alert_raw\
+  */\n\nconfig case_sensitive = false\n| dataset = msft_graph_security_alerts_raw\
   \ \n\n//  Commenting this will apply the correlation to other, possibly non-endpoint\
   \ detections coming from Graph. This rule may function well on some other types,\
   \ but has been optimized for endpoint.\n| filter productName in(\"Microsoft Defender\
